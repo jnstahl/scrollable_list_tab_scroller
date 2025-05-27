@@ -21,7 +21,9 @@ typedef BodyContainerBuilder = Widget Function(
 
 class ScrollableListTabScroller extends StatefulWidget {
   ScrollableListTabScroller({
-    required this.itemCount,
+    required this.tabIndices,
+    required this.itemToTab,
+    required this.subItemCount,
     required this.itemBuilder,
     required this.tabBuilder,
     this.headerContainerBuilder,
@@ -57,7 +59,9 @@ class ScrollableListTabScroller extends StatefulWidget {
   const ScrollableListTabScroller.defaultComponents({
     this.headerContainerProps = const HeaderContainerProps(),
     this.tabBarProps = const TabBarProps(),
-    required this.itemCount,
+    required this.tabIndices,
+    required this.itemToTab,
+    required this.subItemCount,
     required this.itemBuilder,
     required this.tabBuilder,
     this.bodyContainerBuilder,
@@ -82,7 +86,9 @@ class ScrollableListTabScroller extends StatefulWidget {
     this.scrollOffsetListener,
   }) : headerContainerBuilder = null;
 
-  final int itemCount;
+  final List<int> tabIndices;
+  final Map<int, int> itemToTab;
+  final int subItemCount;
   final IndexedWidgetBuilder itemBuilder;
   final IndexedActiveStatusWidgetBuilder tabBuilder;
   final HeaderContainerBuilder? headerContainerBuilder;
@@ -248,7 +254,7 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
     final renderedMostTopItem = orderedListByPositionIndex.first;
 
     if (orderedListByPositionIndex.length > 1 &&
-        orderedListByPositionIndex.last.index == widget.itemCount - 1) {
+        orderedListByPositionIndex.last.index == widget.subItemCount - 1) {
       // I dont know why it's not perfectly 1.0
       // 1.01 LGTM
       const fullBottomEdge = 1.01;
@@ -295,8 +301,8 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
         buildCustomHeaderContainerOrDefault(
           context: context,
           child: DefaultHeaderWidget(
-            key: Key(widget.itemCount.toString()),
-            itemCount: widget.itemCount,
+            key: Key(widget.tabIndices.length.toString()),
+            itemCount: widget.tabIndices.length,
             onTapTab: (i) => _triggerScrollInPositionedListIfNeeded(i),
             //TODO: implement callback to handle tab click ,
             selectedTabIndex: _selectedTabIndex,
@@ -319,7 +325,7 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
                 itemBuilder: (a, b) {
                   return widget.itemBuilder(a, b);
                 },
-                itemCount: widget.itemCount,
+                itemCount: widget.subItemCount,
                 itemScrollController: itemScrollController,
                 itemPositionsListener: itemPositionsListener,
                 shrinkWrap: widget.shrinkWrap,
